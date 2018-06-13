@@ -22,13 +22,20 @@ public class AllinfoDao extends BaseDao {
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("select * from allinfo ");
 
+            if (quoteChange != null || proportion != null) {
+                sqlBuilder.append("where ");
+            }
+
             if (quoteChange != null) {
                 String order = quoteChangeOrder == 1 ? "> " : "< ";
-                sqlBuilder.append("where 涨跌幅 ").append(order).append(quoteChange).append(" ");
+                sqlBuilder.append("涨跌幅 ").append(order).append(quoteChange).append(" ");
             }
             if (proportion != null) {
                 String order = proportionOrder == 1 ? "> " : "< ";
-                sqlBuilder.append("and 股东户数增减比例 ").append(order).append(proportion).append(" ");
+                if (quoteChange != null) {
+                    sqlBuilder.append("and ");
+                }
+                sqlBuilder.append("股东户数增减比例 ").append(order).append(proportion).append(" ");
             }
 
             sqlBuilder.append("limit ").append((page - 1) * pagesize).append(",")
@@ -70,13 +77,20 @@ public class AllinfoDao extends BaseDao {
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("select count(*) from allinfo ");
 
+            if (quoteChange != null || proportion != null) {
+                sqlBuilder.append("where ");
+            }
+
             if (quoteChange != null) {
                 String order = quoteChangeOrder == 1 ? "> " : "< ";
-                sqlBuilder.append("where 涨跌幅 ").append(order).append(quoteChange).append(" ");
+                sqlBuilder.append("涨跌幅 ").append(order).append(quoteChange).append(" ");
             }
             if (proportion != null) {
                 String order = proportionOrder == 1 ? "> " : "< ";
-                sqlBuilder.append("and 股东户数增减比例 ").append(order).append(proportion).append(" ");
+                if (quoteChange != null) {
+                    sqlBuilder.append("and ");
+                }
+                sqlBuilder.append("股东户数增减比例 ").append(order).append(proportion).append(" ");
             }
 
             sqlBuilder.append(";");

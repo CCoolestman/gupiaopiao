@@ -3,7 +3,7 @@ package com.gupiaopiao.dao;
 
 import java.sql.*;
 
-public class BaseDao {
+public abstract class BaseDao {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/gupiaopiao" +
             "?serverTimezone=GMT%2B8";
     private static final String DB_USER = "root";

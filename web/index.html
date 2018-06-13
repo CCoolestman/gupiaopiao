@@ -7,6 +7,9 @@
     <script>
 
         $(document).ready(function () {
+            $('.filter select').change(function () {
+                getAllinfo(1);
+            });
             getAllinfo(1);
         });
 
@@ -19,18 +22,35 @@
             $(td).attr('colspan', '6');
             $(tr).append(td);
             body.append(tr);
-            $.post('getAllinfo',
-                {
-                    page: page,
-                    pageSize: 20
-                },
+
+            var quoteChangeFilter = $('#quoteChange option').eq($('#quoteChange').prop('selectedIndex')).val();
+            var proportionFilter = $('#proportion option').eq($('#proportion').prop('selectedIndex')).val();
+            var params = {page: page, pageSize: 20};
+            if (quoteChangeFilter && quoteChangeFilter !== 'all') {
+                var values = quoteChangeFilter.split(',');
+                params.quoteChangeOrder = values[0];
+                params.quoteChange = values[1];
+            }
+            if (proportionFilter && proportionFilter !== 'all') {
+                var values = proportionFilter.split(',');
+                params.proportionOrder = values[0];
+                params.proportion = values[1];
+            }
+
+            console.log(params);
+
+            $.post('getAllinfo', params,
                 function (result, status) {
                     var indicator = $('.indicator');
                     indicator.html('');
-                    body.html('');
                     if (status === 'success') {
                         result = JSON.parse(result);
                         if (result.succeed === 1) {
+                            if (result.data.total <= 0) {
+                                $('#body tr td').html('暂无数据');
+                                return;
+                            }
+                            body.html('');
                             result.data.data.forEach(function (info) {
                                 var tr = document.createElement('tr');
                                 for (key in info) {
@@ -88,10 +108,28 @@
                         $('#body tr td').html('网络错误');
                     }
                 }
-            );
+            )
+            ;
         }
     </script>
     <style>
+        .filter {
+            margin: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .filter span {
+            margin-left: 60px;
+        }
+
+        .filter select {
+            margin-left: 5px;
+            height: 30px;
+            padding: 5px;
+        }
+
         .table {
             width: 80%;
             margin: 0 auto;
@@ -149,6 +187,41 @@
     </style>
 </head>
 <body>
+
+<div class="filter">
+    <span>区间涨跌幅 : </span>
+    <select id="quoteChange">
+        <option value="all">不限</option>
+        <option value="1,0">上涨</option>
+        <option value="0,0">下跌</option>
+        <option value="1,30">上涨30%以上</option>
+        <option value="1,20">上涨20%以上</option>
+        <option value="1,10">上涨10%以上</option>
+        <option value="0,-30">下跌30%以上</option>
+        <option value="0,-20">下跌20%以上</option>
+        <option value="0,-10">下跌10%以上</option>
+    </select>
+
+    <span>股东户数增减⽐例 : </span>
+    <select id="proportion">
+        <option value="all">不限</option>
+        <option value="1,0">增加</option>
+        <option value="0,0">减少</option>
+        <option value="0,-10">减少10%以上</option>
+        <option value="0,-20">减少20%以上</option>
+        <option value="0,-30">减少30%以上</option>
+    </select>
+
+<!--    <span>区间选择 : </span>
+    <select id="date">
+        <option value="all">不限</option>
+        <option value="1">过去1个月</option>
+        <option value="3">过去3个月</option>
+        <option value="6">过去6个月</option>
+        <option value="12">过去12个月</option>
+        <option value="custom">自定义时间</option>
+    </select>-->
+</div>
 <table class="table" cellspacing="1" cellpadding="4" bgcolor="#cccccc">
     <thead>
     <tr>
