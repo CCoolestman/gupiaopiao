@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>股票</title>
+    <script src="js/jquery-3.2.1.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            getAllinfo(1);
+        });
+
+        function getAllinfo(page) {
+            var body = $('#body');
+            body.html('');
+            var tr = document.createElement('tr');
+            var td = document.createElement('td');
+            td.innerHTML = '正在加载数据...';
+            $(td).attr('colspan', '6');
+            $(tr).append(td);
+            body.append(tr);
+            $.post('getAllinfo',
+                {
+                    page: page,
+                    pageSize: 20
+                },
+                function (result, status) {
+                    var indicator = $('.indicator');
+                    indicator.html('');
+                    body.html('');
+                    if (status === 'success') {
+                        result = JSON.parse(result);
+                        if (result.succeed === 1) {
+                            result.data.data.forEach(function (info) {
+                                var tr = document.createElement('tr');
+                                for (key in info) {
+                                    var td = document.createElement('td');
+                                    var value = info[key];
+                                    $(td).html(value);
+                                    if (key === 'quoteChange' || key === 'proportion') {
+                                        if (value >= 0) {
+                                            $(td).css('color', '#4F9900');
+                                        } else {
+                                            $(td).css('color', '#FF0000');
+                                        }
+                                    }
+                                    $(tr).append(td);
+                                }
+                                body.append(tr);
+                            });
+                            var pageCount = Math.ceil(result.data.total / result.data.pageSize);
+                            var fristIndex = result.data.page === 1 ? result.data.page : result.data.page - 1;
+                            var count = pageCount - fristIndex > 10 ? fristIndex + 10 : pageCount;
+
+                            var fristSpan = document.createElement('span');
+                            $(fristSpan).html('首页');
+                            $(fristSpan).css('width', '50px');
+                            $(fristSpan).click(function () {
+                                getAllinfo(1);
+                            });
+                            indicator.append(fristSpan);
+
+                            for (var i = fristIndex; i <= count; i++) {
+                                var span = document.createElement('span');
+                                if (count - fristIndex >= 10 && i === count - 1) {
+                                    $(span).html('...');
+                                    $(span).addClass('indicator fill');
+                                } else if (count - fristIndex >= 10 && i === count) {
+                                    $(span).html(pageCount);
+                                    $(span).click(function () {
+                                        getAllinfo(pageCount);
+                                    });
+                                } else {
+                                    $(span).html(i);
+                                    (function (index) {
+                                        $(span).click(function () {
+                                            getAllinfo(index);
+                                        });
+                                    })(i);
+                                }
+                                indicator.append(span);
+                            }
+                        } else {
+                            $('#body tr td').html(result.msg);
+                        }
+                    }
+                    else {
+                        $('#body tr td').html('网络错误');
+                    }
+                }
+            );
+        }
+    </script>
+    <style>
+        .table {
+            width: 80%;
+            margin: 0 auto;
+            font-size: 15px;
+            line-height: 150%;
+            text-align: center;
+        }
+
+        td {
+            background-color: #ffffff;
+        }
+
+        thead {
+            color: #255e95;
+            font-weight: bold;
+        }
+
+        thead td {
+            background-color: #e9faff;
+        }
+
+        .indicator {
+            margin: 20px auto;
+            height: 30px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .indicator span {
+            color: #777777;
+            border: #cccccc 1px solid;
+            line-height: 30px;
+            margin-left: 7px;
+            margin-right: 7px;
+            width: 30px;
+            display: inline-block;
+        }
+
+        .indicator span:hover {
+            background-color: #e9faff;
+            cursor: pointer;
+            transition: background-color .5s;
+        }
+
+        .indicator .fill {
+            border: 0;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .indicator .fill:hover {
+            background-color: transparent;
+            cursor: inherit;
+        }
+    </style>
+</head>
+<body>
+<table class="table" cellspacing="1" cellpadding="4" bgcolor="#cccccc">
+    <thead>
+    <tr>
+        <td>代码</td>
+        <td>名称</td>
+        <td>最新价格</td>
+        <td>涨跌幅</td>
+        <td>股东户数增减比例</td>
+        <td>股东户数统计截至日期</td>
+    </tr>
+    </thead>
+    <tbody id="body">
+    </tbody>
+</table>
+
+<div class="indicator">
+</div>
+</body>
+</html>
