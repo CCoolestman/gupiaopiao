@@ -4,13 +4,16 @@ import com.gupiaopiao.bean.AllinfoBean;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class AllinfoDao extends BaseDao {
 
-    public List<AllinfoBean> getAllinfo(Float proportion, int proportionOrder, Float quoteChange, int quoteChangeOrder,
-                                        int page, int pagesize) {
+    public List<AllinfoBean> getAllinfo(Float proportion, Integer proportionOrder, Float quoteChange, Integer quoteChangeOrder,
+                                        Integer date, int page, int pagesize) {
         openConnection();
         if (conn == null) {
             return null;
@@ -22,21 +25,7 @@ public class AllinfoDao extends BaseDao {
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("select * from allinfo ");
 
-            if (quoteChange != null || proportion != null) {
-                sqlBuilder.append("where ");
-            }
-
-            if (quoteChange != null) {
-                String order = quoteChangeOrder == 1 ? "> " : "< ";
-                sqlBuilder.append("涨跌幅 ").append(order).append(quoteChange).append(" ");
-            }
-            if (proportion != null) {
-                String order = proportionOrder == 1 ? "> " : "< ";
-                if (quoteChange != null) {
-                    sqlBuilder.append("and ");
-                }
-                sqlBuilder.append("股东户数增减比例 ").append(order).append(proportion).append(" ");
-            }
+            buildWhere(proportion, proportionOrder, quoteChange, quoteChangeOrder, sqlBuilder, date);
 
             sqlBuilder.append("limit ").append((page - 1) * pagesize).append(",")
                     .append(pagesize);
@@ -65,7 +54,8 @@ public class AllinfoDao extends BaseDao {
         }
     }
 
-    public int getTotal(Float proportion, int proportionOrder, Float quoteChange, int quoteChangeOrder) {
+    public int getTotal(Float proportion, Integer proportionOrder, Float quoteChange, Integer quoteChangeOrder,
+                        Integer date) {
         openConnection();
         if (conn == null) {
             return 0;
@@ -77,21 +67,7 @@ public class AllinfoDao extends BaseDao {
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("select count(*) from allinfo ");
 
-            if (quoteChange != null || proportion != null) {
-                sqlBuilder.append("where ");
-            }
-
-            if (quoteChange != null) {
-                String order = quoteChangeOrder == 1 ? "> " : "< ";
-                sqlBuilder.append("涨跌幅 ").append(order).append(quoteChange).append(" ");
-            }
-            if (proportion != null) {
-                String order = proportionOrder == 1 ? "> " : "< ";
-                if (quoteChange != null) {
-                    sqlBuilder.append("and ");
-                }
-                sqlBuilder.append("股东户数增减比例 ").append(order).append(proportion).append(" ");
-            }
+            buildWhere(proportion, proportionOrder, quoteChange, quoteChangeOrder, sqlBuilder, date);
 
             sqlBuilder.append(";");
 
@@ -106,6 +82,36 @@ public class AllinfoDao extends BaseDao {
             return 0;
         } finally {
             closeAll(stmt, result);
+        }
+    }
+
+    private void buildWhere(Float proportion, Integer proportionOrder, Float quoteChange, Integer quoteChangeOrder, StringBuilder sqlBuilder,
+                            Integer date) {
+        if (quoteChange != null || proportion != null || date != null) {
+            sqlBuilder.append("where ");
+        }
+
+        if (quoteChange != null) {
+            String order = quoteChangeOrder == 1 ? "> " : "< ";
+            sqlBuilder.append("涨跌幅 ").append(order).append(quoteChange).append(" ");
+        }
+        if (proportion != null) {
+            String order = proportionOrder == 1 ? "> " : "< ";
+            if (quoteChange != null) {
+                sqlBuilder.append("and ");
+            }
+            sqlBuilder.append("股东户数增减比例 ").append(order).append(proportion).append(" ");
+        }
+        if (date != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Calendar now = Calendar.getInstance();
+            String end = sdf.format(now.getTime());
+            now.set(Calendar.MONTH, now.get(Calendar.MONTH) - date);
+            String start = sdf.format(now.getTime());
+            if (quoteChange != null || proportion != null) {
+                sqlBuilder.append("and ");
+            }
+            sqlBuilder.append("股东户数统计截至日期 between '").append(start).append("' and '").append(end).append("' ");
         }
     }
 }

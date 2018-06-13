@@ -25,6 +25,7 @@
 
             var quoteChangeFilter = $('#quoteChange option').eq($('#quoteChange').prop('selectedIndex')).val();
             var proportionFilter = $('#proportion option').eq($('#proportion').prop('selectedIndex')).val();
+            var dateFilter = $('#date option').eq($('#date').prop('selectedIndex')).val();
             var params = {page: page, pageSize: 20};
             if (quoteChangeFilter && quoteChangeFilter !== 'all') {
                 var values = quoteChangeFilter.split(',');
@@ -35,6 +36,10 @@
                 var values = proportionFilter.split(',');
                 params.proportionOrder = values[0];
                 params.proportion = values[1];
+            }
+
+            if (dateFilter && dateFilter !== 'all') {
+                params.date = dateFilter;
             }
 
             console.log(params);
@@ -212,15 +217,14 @@
         <option value="0,-30">减少30%以上</option>
     </select>
 
-<!--    <span>区间选择 : </span>
+    <span>区间选择 : </span>
     <select id="date">
         <option value="all">不限</option>
         <option value="1">过去1个月</option>
         <option value="3">过去3个月</option>
         <option value="6">过去6个月</option>
         <option value="12">过去12个月</option>
-        <option value="custom">自定义时间</option>
-    </select>-->
+    </select>
 </div>
 <table class="table" cellspacing="1" cellpadding="4" bgcolor="#cccccc">
     <thead>
