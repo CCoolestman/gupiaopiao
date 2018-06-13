@@ -4,7 +4,6 @@ import com.gupiaopiao.bean.AllinfoBean;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,7 +29,6 @@ public class AllinfoDao extends BaseDao {
             sqlBuilder.append("limit ").append((page - 1) * pagesize).append(",")
                     .append(pagesize);
             sqlBuilder.append(";");
-            System.out.println(sqlBuilder);
             result = stmt.executeQuery(sqlBuilder.toString());
             List<AllinfoBean> alinfoList = new ArrayList<>();
             while (result.next()) {

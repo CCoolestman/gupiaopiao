@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图表</title>
+    <script src="js/Chart.js"></script>
+    <script src="js/jquery-3.2.1.js"></script>
+    <style>
+        .chart {
+            text-align: center;
+            width: 80%;
+            height: 60%;
+            margin: 3% auto;
+        }
+    </style>
+
+    <script>
+
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = decodeURIComponent(window.location.search).substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+
+        $(document).ready(function () {
+            var code = getUrlParam('code');
+            $.post('getDetails', {code: code}, function (result, status) {
+                if (status === 'success') {
+                    result = JSON.parse(result);
+                    if (result.succeed === 1) {
+                        $('.chart h3').html(result.data[0].name + ' - 股东总数及股票价格趋势图');
+                        initChart(result.data);
+                    } else {
+                        alert(result.msg);
+                    }
+                } else {
+                    alert('网络错误');
+                }
+            });
+        });
+
+        function initChart(data) {
+            var ctx = $('#myChart');
+            var dataset1 = {
+                label: "股东总数",
+                fill: false,
+                data: [],
+                yAxisID: 'left',
+                borderColor: "rgb(75, 192, 192)",
+                lineTension: 0.3,
+                pointRadius: 5,
+                pointHoverRadius: 5,
+                pointBackgroundColor: "rgb(75, 192, 192)"
+            };
+            var dataset2 = {
+                label: "股票价格(元)",
+                fill: false,
+                data: [],
+                yAxisID: 'right',
+                borderColor: "RGB(222,146,0)",
+                lineTension: 0.3,
+                pointRadius: 5,
+                pointHoverRadius: 5,
+                pointBackgroundColor: "RGB(222,146,0)"
+            };
+
+            var params = {
+                type: "line",
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            id: 'left',
+                            position: 'left',
+                            scaleLabel: {
+                                display: true,
+                                fontSize: 15,
+                                labelString: dataset1.label
+                            }
+                        }, {
+                            id: 'right',
+                            position: 'right',
+                            scaleLabel: {
+                                display: true,
+                                fontSize: 15,
+                                labelString: dataset2.label
+                            }
+                        }]
+                    }
+                }
+            };
+            $.each(data, function (index, value) {
+                params.data.labels[index] = value.date;
+                dataset1.data[index] = value.shareholders;
+                dataset2.data[index] = value.stockPrice;
+            });
+            params.data.datasets[0] = dataset1;
+            params.data.datasets[1] = dataset2;
+            new Chart(ctx, params);
+        }
+    </script>
+</head>
+<body>
+<div class="chart">
+    <h3></h3>
+    <canvas id="myChart"></canvas>
+</div>
+</body>
+</html>

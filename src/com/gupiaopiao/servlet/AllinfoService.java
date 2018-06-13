@@ -21,6 +21,9 @@ public class AllinfoService extends BaseService<ListBean<AllinfoBean>> {
         int pageSize = NumberUtil.parseInt(req.getParameter("pageSize"), 20);
         AllinfoDao allinfoDao = new AllinfoDao();
         List<AllinfoBean> allinfo = allinfoDao.getAllinfo(proportion, proportionOrder, quoteChange, quoteChangeOrder, date, page, pageSize);
+        if (allinfo == null) {
+            return "数据库连接失败";
+        }
         ListBean<AllinfoBean> bean = new ListBean<>();
         bean.setData(allinfo);
         bean.setPage(page);

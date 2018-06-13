@@ -58,6 +58,9 @@
                             body.html('');
                             result.data.data.forEach(function (info) {
                                 var tr = document.createElement('tr');
+                                $(tr).click(function () {
+                                    window.open('chart.html?code=' + info.code);
+                                });
                                 for (key in info) {
                                     var td = document.createElement('td');
                                     var value = info[key];
@@ -154,6 +157,12 @@
 
         thead td {
             background-color: #e9faff;
+            height: 30px;
+        }
+
+        #body tr:hover td {
+            background-color: #e9faff;
+            cursor: pointer;
         }
 
         .indicator {
@@ -231,9 +240,9 @@
     <tr>
         <td>代码</td>
         <td>名称</td>
-        <td>最新价格</td>
-        <td>涨跌幅</td>
-        <td>股东户数增减比例</td>
+        <td>最新价格(元)</td>
+        <td>涨跌幅(%)</td>
+        <td>股东户数增减比例(%)</td>
         <td>股东户数统计截至日期</td>
     </tr>
     </thead>

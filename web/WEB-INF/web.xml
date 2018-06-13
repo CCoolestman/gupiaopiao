@@ -12,4 +12,13 @@
         <servlet-name>getAllinfo</servlet-name>
         <url-pattern>/getAllinfo</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>getDetails</servlet-name>
+        <servlet-class>com.gupiaopiao.servlet.DetailService</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>getDetails</servlet-name>
+        <url-pattern>/getDetails</url-pattern>
+    </servlet-mapping>
 </web-app>
